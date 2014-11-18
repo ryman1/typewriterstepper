@@ -4,7 +4,7 @@ int wire2 = 3;
 int wire3 = 4;
 int wire4 = 5;
 //int stepdelay = 1000  ;
-int stepdelay = 10000  ;
+int stepdelay = 4000  ;
 int fullturnsteps = 384;
 int steps[8][4] = {{1, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 1}, {0, 0, 0, 1}, {1, 0, 0, 1}};
 int dialnumbercount = 40;
@@ -27,17 +27,21 @@ void setup() {
 
   while (num < dialnumbercount) {
     dialnumbers[num] = round(cstep);
-    Serial.print("cstep\n");
-    Serial.print(cstep);
-    Serial.print("\n");
-    Serial.print(stepsperdialnumber);
+//    Serial.print("cstep\n");
+//    Serial.print(cstep);
+//    Serial.print("\n");
+//    Serial.print(stepsperdialnumber);
 //    Serial.print("\n");
     cstep += stepsperdialnumber;
     num++;
     
   }
 }
-
+void p(const char* s) {
+  Serial.print("\n");
+  Serial.print(s);
+  Serial.print("\n");
+}
 //pitch is interstep delay in microseconds, length is length that this note is played in milliseconds
 void playNote(int pitch, int length) {
   long notestarttime = millis();
@@ -48,8 +52,36 @@ void playNote(int pitch, int length) {
 }
 
 void gotoDialNumber(int number, int counterclockwise){
-  stepMotor(dialnumbers[number] - currentstep, counterclockwise);
+  int howmanytostep;
+  //if we're going counter clockwise and we're going to pass zero do some funky math to loop back around. 
+  if (counterclockwise == 1){
+    if (currentdiallocationstep > dialnumbers[number]){
+//      p("loop 1");
+//      howmanytostep = dialnumbers[number] + dialnumbercount - currentdiallocationstep;
+      howmanytostep = dialnumbers[number] + fullturnsteps - currentdiallocationstep;
+    }
+    else {
+//      p("loop 2");
+      howmanytostep = dialnumbers[number] - currentdiallocationstep;
+    }
+
+
+  }
+  else if (counterclockwise == 0){
+    if (currentdiallocationstep < dialnumbers[number]){
+//      p("loop 1");
+      howmanytostep = fullturnsteps + currentdiallocationstep - dialnumbers[number];
+    }
+    else {
+//      p("loop 2");
+      howmanytostep = currentdiallocationstep - dialnumbers[number];
+    }
+  }
+  
+  
   currentdiallocationstep = dialnumbers[number];
+  stepMotor(howmanytostep, counterclockwise);
+
 }
 
 void rotateClockwise(int waittime) { //2100 typewriter default waittime
@@ -89,8 +121,8 @@ void playJingleBells(){
 void stepMotor(int numberofsteps, int counterclockwise){
   Serial.print("\nnumberofsteps\n");
   Serial.print(numberofsteps);
-  Serial.print("\ncounterclockwise\n");
-  Serial.print(counterclockwise);
+//  Serial.print("\ncounterclockwise\n");
+//  Serial.print(counterclockwise);
   while (numberofsteps > 0) {
     singleStep(counterclockwise);
     numberofsteps--;
@@ -137,11 +169,29 @@ void loop() {
 //  delay(1000);
 //  stepMotor(90, 1);
 //  delay(1000);
-  gotoDialNumber(10, 1);
-  delay(1000);
+//  gotoDialNumber(30, 0);
+//  delay(500);
+//  gotoDialNumber(10, 0);
+//  delay(500);
+//  gotoDialNumber(20, 0);
+//  delay(500);
+//  gotoDialNumber(0, 0);
+//  delay(500);
+//  gotoDialNumber(30, 1);
+//  delay(500);
+//  gotoDialNumber(10, 1);
+//  delay(500);
+//  gotoDialNumber(20, 1);
+//  delay(500);
+//  gotoDialNumber(0, 1);
+//  delay(500);
+  rotateFullTurn(0);
+  rotateFullTurn(0);
+  gotoDialNumber(2, 0);
+  rotateFullTurn(1);
   gotoDialNumber(20, 1);
-  delay(1000);
-  gotoDialNumber(30, 1);
-  delay(1000);
+  delay(500);
+  gotoDialNumber(10, 0);
+  turnAllWiresOff();
+  delay(10000000);
 }
-
