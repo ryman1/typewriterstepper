@@ -1,25 +1,28 @@
-
 int wire1 = 2;
 int wire2 = 3;
 int wire3 = 4;
 int wire4 = 5;
-//int stepdelay = 1000  ;
-int stepdelay = 4000  ;
+//microseconds between steps
+int stepdelay = 4000;
+//how many motor steps it take to spin 360 degrees
 int fullturnsteps = 384;
+//full sequence of wire power combinations to step through every coil
 int steps[8][4] = {{1, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 1}, {0, 0, 0, 1}, {1, 0, 0, 1}};
+//how many numbers are on the combination lock
 int dialnumbercount = 40;
-float dialnumbers[40];
+//this array will hold the exact number of steps from zero it takes to get to each number on the lock
+float dialnumbers[dialnumbercount];
 float stepsperdialnumber = (float)fullturnsteps / (float)dialnumbercount;
 float cstep = 0;
 int num = 0;
-
+//currentstep indiacte which of the steps in the "steps" array the motor is currently on
 int currentstep = 0;
+//the actual number the lock is pointing at right now
 int currentdiallocationstep = 0;
 
 // the setup routine runs once when you press reset:
-void setup() {                
-  // initialize the digital pin as an output.
-  pinMode(wire1, OUTPUT);     
+void setup() {
+  pinMode(wire1, OUTPUT);
   pinMode(wire2, OUTPUT);
   pinMode(wire3, OUTPUT);
   pinMode(wire4, OUTPUT);
@@ -27,22 +30,18 @@ void setup() {
 
   while (num < dialnumbercount) {
     dialnumbers[num] = round(cstep);
-//    Serial.print("cstep\n");
-//    Serial.print(cstep);
-//    Serial.print("\n");
-//    Serial.print(stepsperdialnumber);
-//    Serial.print("\n");
     cstep += stepsperdialnumber;
     num++;
     
   }
 }
+
+//print to serial function
 void p(const char* s) {
   Serial.print("\n");
   Serial.print(s);
-  Serial.print("\n");
 }
-//pitch is interstep delay in microseconds, length is length that this note is played in milliseconds
+//pitch is the interstep delay in microseconds, length is the  length that this note is played in milliseconds
 void playNote(int pitch, int length) {
   long notestarttime = millis();
   while (millis() - notestarttime < length){
@@ -51,29 +50,26 @@ void playNote(int pitch, int length) {
   delay(100);
 }
 
+//go to specified number on dial by spinning in specified direction
 void gotoDialNumber(int number, int counterclockwise){
   int howmanytostep;
-  //if we're going counter clockwise and we're going to pass zero do some funky math to loop back around. 
+  //if we're going counter clockwise and we're going to pass zero do some funky math to loop back around. If we're not going past zero just do the math normally.
   if (counterclockwise == 1){
     if (currentdiallocationstep > dialnumbers[number]){
-//      p("loop 1");
-//      howmanytostep = dialnumbers[number] + dialnumbercount - currentdiallocationstep;
       howmanytostep = dialnumbers[number] + fullturnsteps - currentdiallocationstep;
     }
     else {
-//      p("loop 2");
       howmanytostep = dialnumbers[number] - currentdiallocationstep;
     }
 
 
   }
+  //if we're going clockwise and we're going to pass zero do some funky math to loop back around. If we're not going past zero just do the math normally.
   else if (counterclockwise == 0){
     if (currentdiallocationstep < dialnumbers[number]){
-//      p("loop 1");
       howmanytostep = fullturnsteps + currentdiallocationstep - dialnumbers[number];
     }
     else {
-//      p("loop 2");
       howmanytostep = currentdiallocationstep - dialnumbers[number];
     }
   }
@@ -84,6 +80,7 @@ void gotoDialNumber(int number, int counterclockwise){
 
 }
 
+//rotate clockwise a few steps using the specified interstep delay
 void rotateClockwise(int waittime) { //2100 typewriter default waittime
   digitalWrite(wire1, HIGH);  
   delayMicroseconds(waittime);
@@ -163,28 +160,6 @@ void turnAllWiresOff() {
 
 // the loop routine runs over and over again forever:
 void loop() {  
-//  stepMotor(90, 1);
-//  delay(1000);
-//  stepMotor(90, 1);
-//  delay(1000);
-//  stepMotor(90, 1);
-//  delay(1000);
-//  gotoDialNumber(30, 0);
-//  delay(500);
-//  gotoDialNumber(10, 0);
-//  delay(500);
-//  gotoDialNumber(20, 0);
-//  delay(500);
-//  gotoDialNumber(0, 0);
-//  delay(500);
-//  gotoDialNumber(30, 1);
-//  delay(500);
-//  gotoDialNumber(10, 1);
-//  delay(500);
-//  gotoDialNumber(20, 1);
-//  delay(500);
-//  gotoDialNumber(0, 1);
-//  delay(500);
   rotateFullTurn(0);
   rotateFullTurn(0);
   gotoDialNumber(2, 0);
