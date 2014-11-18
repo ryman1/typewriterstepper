@@ -15,9 +15,9 @@ float dialnumbers[dialnumbercount];
 float stepsperdialnumber = (float)fullturnsteps / (float)dialnumbercount;
 float cstep = 0;
 int num = 0;
-//currentstep indiacte which of the steps in the "steps" array the motor is currently on
+//currentstep indicates which of the steps in the "steps" array the motor is currently on
 int currentstep = 0;
-//the actual number the lock is pointing at right now
+//the actual number of steps from zero we are currently at
 int currentdiallocationstep = 0;
 
 // the setup routine runs once when you press reset:
@@ -64,6 +64,7 @@ void gotoDialNumber(int number, int counterclockwise){
 
 
   }
+  
   //if we're going clockwise and we're going to pass zero do some funky math to loop back around. If we're not going past zero just do the math normally.
   else if (counterclockwise == 0){
     if (currentdiallocationstep < dialnumbers[number]){
@@ -79,6 +80,7 @@ void gotoDialNumber(int number, int counterclockwise){
   stepMotor(howmanytostep, counterclockwise);
 
 }
+
 
 //rotate clockwise a few steps using the specified interstep delay
 void rotateClockwise(int waittime) { //2100 typewriter default waittime
@@ -157,7 +159,36 @@ void turnAllWiresOff() {
   digitalWrite(wire4, 0);  
 }
 
+void bruteForce(){
 
+  for (num1 = 0, num1 < dialnumbercount, num1++){
+    rotateFullTurn(0);
+    rotateFullTurn(0);
+    gotoDialNumber(num1, 0);
+    rotateFullTurn(1);
+    for (num2 = num1 + 1, num2 != num1, num2 = dialAdd(num2, 1)){
+      gotoDialNumber(num2, 1);
+      for (num3 = num2 - 1, num3 != num2, num3 = dialAdd(num3, -1)){
+        gotoDialNumber(num3, 0);
+        p("pull test");
+        p(num1);
+        p(num2);
+        p(num3);
+      }
+    }
+  }
+}
+
+int dialAdd(int currentdialnumber, int numbertomove){
+  output = currentdialnumber + numbertomove;
+  if (output < 0){
+    output += dialnumbercount;
+  }
+  else if(output > dialnumbercount - 1){
+    output -= dialnumbercount;
+  }
+  return output;
+}
 // the loop routine runs over and over again forever:
 void loop() {  
   rotateFullTurn(0);
@@ -171,4 +202,3 @@ void loop() {
   delay(10000000);
 }
 
-//this is a test
