@@ -9,7 +9,7 @@ int fullturnsteps = 384;
 //full sequence of wire power combinations to step through every coil
 int steps[8][4] = {{1, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 1}, {0, 0, 0, 1}, {1, 0, 0, 1}};
 //how many numbers are on the combination lock
-int dialnumbercount = 40;
+const int dialnumbercount = 40;
 //this array will hold the exact number of steps from zero it takes to get to each number on the lock
 float dialnumbers[dialnumbercount];
 float stepsperdialnumber = (float)fullturnsteps / (float)dialnumbercount;
@@ -161,26 +161,26 @@ void turnAllWiresOff() {
 
 void bruteForce(){
 
-  for (num1 = 0, num1 < dialnumbercount, num1++){
+  for (int num1 = 0; num1 < dialnumbercount; num1++){
     rotateFullTurn(0);
     rotateFullTurn(0);
     gotoDialNumber(num1, 0);
     rotateFullTurn(1);
-    for (num2 = num1 + 1, num2 != num1, num2 = dialAdd(num2, 1)){
+    for (int num2 = num1 + 1; num2 != num1; num2 = dialAdd(num2, 1)){
       gotoDialNumber(num2, 1);
-      for (num3 = num2 - 1, num3 != num2, num3 = dialAdd(num3, -1)){
+      for (int num3 = num2 - 1; num3 != num2; num3 = dialAdd(num3, -1)){
         gotoDialNumber(num3, 0);
         p("pull test");
-        p(num1);
-        p(num2);
-        p(num3);
+        Serial.print(num1);
+        Serial.print(num2);
+        Serial.print(num3);
       }
     }
   }
 }
 
 int dialAdd(int currentdialnumber, int numbertomove){
-  output = currentdialnumber + numbertomove;
+  int output = currentdialnumber + numbertomove;
   if (output < 0){
     output += dialnumbercount;
   }
@@ -191,14 +191,6 @@ int dialAdd(int currentdialnumber, int numbertomove){
 }
 // the loop routine runs over and over again forever:
 void loop() {  
-  rotateFullTurn(0);
-  rotateFullTurn(0);
-  gotoDialNumber(2, 0);
-  rotateFullTurn(1);
-  gotoDialNumber(20, 1);
-  delay(500);
-  gotoDialNumber(10, 0);
-  turnAllWiresOff();
-  delay(10000000);
+  bruteForce()
 }
 
